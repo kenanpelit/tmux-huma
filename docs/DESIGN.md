@@ -18,7 +18,7 @@ huma.tmux            TPM entrypoint (bash): resolve/install binary, set
                      @huma_mode, paint initial values, start the daemon.
 scripts/install-binary.sh   download-release-or-cargo-build
 src/
-  main.rs / cli.rs   clap dispatch: daemon | once | mode | online | battery | load
+  main.rs / cli.rs   clap dispatch: daemon|once|mode|online|battery|load|ssh|kripto|player
   tmux.rs            tmux CLI wrapper (run + set/show user options)
   config.rs          read @huma-* via `tmux show-options -gqv`
   online.rs          TCP-connect reachability + latency
@@ -57,6 +57,15 @@ process).
   per-pane, so `huma.tmux` also registers a `pane-focus-in` hook to refresh it
   the instant focus changes (the daemon tick is a fallback). No window rename.
   `@huma-ssh-format` = `host` (default) | `user@host`.
+- **kripto**: crypto prices from the CoinGecko public API. The daemon shells out
+  to `curl` for `simple/price?ids=<coins>&vs_currencies=<cur>` and hand-parses the
+  numbers (no JSON crate). Rate-limited by `@huma-kripto-ttl`: the value is cached
+  in `$XDG_RUNTIME_DIR/huma-kripto.cache` and only re-fetched once the TTL elapses,
+  so the per-second daemon tick never hammers the API; a failed fetch falls back to
+  the last good value. Off until `@huma-kripto-coins` is set (no unsolicited calls).
+- **player**: now-playing via the `playerctl` CLI (`status` + `metadata --format`).
+  Daemon polls each tick, renders a play/pause icon + truncated text, empty when
+  stopped / no player. `@huma-player-format` / `-max` / `-playing` / `-paused`.
 
 ## Daemon
 
@@ -86,5 +95,8 @@ binary inside the plugin dir, never touching `PATH` — exactly like anka.
 ## Roadmap
 
 - **v0.1.0** ✅ — online, mode, battery, load widgets; daemon; CI release binaries.
+- **v0.2.0** ✅ — ssh widget (per-pane `/proc` detection + focus hook).
+- **v0.3.0** ✅ — kripto (TTL-cached CoinGecko) + player (playerctl) widgets,
+  folding in `tmux-kripto` and `tmux-plugin-playerctl`.
 - Later — per-widget icon sets / nerd-font presets; more probes (VPN, multiple
   hosts) if wanted.

@@ -17,6 +17,14 @@ pub struct Config {
     pub mode_sync: String,
     pub mode_mouse: String,
     pub ssh_user_at_host: bool,
+    pub kripto_coins: Vec<String>,
+    pub kripto_currency: String,
+    pub kripto_symbol: String,
+    pub kripto_ttl: u64,
+    pub player_format: String,
+    pub player_max: usize,
+    pub player_playing: String,
+    pub player_paused: String,
 }
 
 fn opt_or(name: &str, default: &str) -> String {
@@ -53,6 +61,18 @@ impl Config {
             mode_sync: opt_or("@huma-mode-sync", "⚏"),
             mode_mouse: opt_or("@huma-mode-mouse", "↗"),
             ssh_user_at_host: opt_or("@huma-ssh-format", "host") == "user@host",
+            kripto_coins: opt_or("@huma-kripto-coins", "")
+                .split(',')
+                .map(|s| s.trim().to_string())
+                .filter(|s| !s.is_empty())
+                .collect(),
+            kripto_currency: opt_or("@huma-kripto-currency", "usd"),
+            kripto_symbol: opt_or("@huma-kripto-symbol", "$"),
+            kripto_ttl: opt_or("@huma-kripto-ttl", "300").parse().unwrap_or(300),
+            player_format: opt_or("@huma-player-format", "{{artist}} - {{title}}"),
+            player_max: opt_or("@huma-player-max", "40").parse().unwrap_or(40),
+            player_playing: opt_or("@huma-player-playing", "▶"),
+            player_paused: opt_or("@huma-player-paused", "⏸"),
         }
     }
 }

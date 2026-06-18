@@ -1,8 +1,8 @@
 [package]
 name = "huma"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
-description = "tmux status-bar awareness widgets (online/mode/battery/load)."
+description = "tmux status-bar awareness widgets (online/mode/battery/load/ssh/kripto/player)."
 license = "MIT"
 repository = "https://github.com/kenanpelit/tmux-huma"
 authors = ["Kenan Pelit <kenanpelit@gmail.com>"]

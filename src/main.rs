@@ -2,9 +2,11 @@ mod battery;
 mod cli;
 mod config;
 mod daemon;
+mod kripto;
 mod load;
 mod mode;
 mod online;
+mod player;
 mod ssh;
 mod tmux;
 
@@ -44,6 +46,14 @@ fn run() -> Result<()> {
         }
         Cmd::Ssh => {
             ssh::update(&cfg);
+            Ok(())
+        }
+        Cmd::Kripto => {
+            println!("{}", kripto::value(&cfg));
+            Ok(())
+        }
+        Cmd::Player => {
+            println!("{}", player::value(&cfg));
             Ok(())
         }
     }

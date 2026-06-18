@@ -66,6 +66,14 @@ mod tests {
             mode_sync: "S".into(),
             mode_mouse: "M".into(),
             ssh_user_at_host: false,
+            kripto_coins: vec![],
+            kripto_currency: "usd".into(),
+            kripto_symbol: "$".into(),
+            kripto_ttl: 300,
+            player_format: "{{artist}} - {{title}}".into(),
+            player_max: 40,
+            player_playing: "▶".into(),
+            player_paused: "⏸".into(),
         }
     }
 

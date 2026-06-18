@@ -23,4 +23,8 @@ pub enum Cmd {
     Load,
     /// Refresh @huma_ssh for the active pane (pane-focus hook / daemon)
     Ssh,
+    /// Print the crypto-price widget (TTL-cached CoinGecko fetch)
+    Kripto,
+    /// Print the now-playing widget (playerctl)
+    Player,
 }

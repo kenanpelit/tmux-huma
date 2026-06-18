@@ -7,7 +7,7 @@ use std::thread;
 use std::time::Duration;
 
 use crate::config::Config;
-use crate::{battery, load, online, ssh, tmux};
+use crate::{battery, kripto, load, online, player, ssh, tmux};
 
 pub fn once(cfg: &Config) -> Result<()> {
     if !tmux::server_running() {
@@ -17,6 +17,8 @@ pub fn once(cfg: &Config) -> Result<()> {
     tmux::set_global_option("@huma_battery", &battery::widget(cfg));
     tmux::set_global_option("@huma_load", &load::widget(cfg));
     tmux::set_global_option("@huma_ssh", &ssh::target(cfg));
+    kripto::update(cfg);
+    player::update(cfg);
     Ok(())
 }
 

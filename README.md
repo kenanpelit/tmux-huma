@@ -21,6 +21,10 @@ values, so your status bar never waits on a connectivity check. Linux-only.
 - **Load** — `/proc/loadavg` 1-minute, optional used-RAM%. `#{@huma_load}`
 - **SSH** — the active pane's ssh host (or `user@host`), detected via `/proc`,
   refreshed instantly on pane focus. Empty when not in ssh. `#{@huma_ssh}`
+- **Kripto** — live crypto prices (CoinGecko), TTL-cached so the API is hit at
+  most once per `@huma-kripto-ttl`. Off until you set coins. `#{@huma_kripto}`
+- **Player** — now-playing from `playerctl`, with a play/pause marker and
+  truncation. Empty when nothing is playing. `#{@huma_player}`
 - **Non-blocking** — a background daemon writes the values; the status bar just
   reads user options. No per-refresh blocking.
 - **Theme-agnostic** — emits value + icon only; you wrap it in your own
@@ -29,8 +33,10 @@ values, so your status bar never waits on a connectivity check. Linux-only.
 ## Requirements
 
 - **Linux** (`/proc`, `/sys`); **tmux 3.x+**.
-- Nothing else at runtime: `huma` is a single static binary. Building from source
-  needs Rust; installing a release does not.
+- Core widgets need nothing else: `huma` is a single static binary. Building from
+  source needs Rust; installing a release does not.
+- Optional: `curl` for the **kripto** widget, `playerctl` for the **player**
+  widget. Missing either just leaves that one widget empty.
 
 ## Install (TPM)
 
@@ -53,6 +59,8 @@ Place these in your `status-left` / `status-right` and style them yourself:
 | `#{@huma_battery}` | `⚡50%` / `!12%` / `80%` (empty on desktops) |
 | `#{@huma_load}` | `▟ 0.42` (+ ` · 38%` with `@huma-load-mem on`) |
 | `#{@huma_ssh}` | `grid` (or `user@host`) when the pane is in ssh, else empty |
+| `#{@huma_kripto}` | `$62,487` (one or more coins; empty until configured) |
+| `#{@huma_player}` | `▶ Artist - Title` / `⏸ …` (empty when not playing) |
 
 Example:
 
@@ -74,6 +82,13 @@ set -g status-right "#{@huma_mode} #{@huma_load} #{@huma_battery} #{@huma_online
 | `@huma-load-icon` | `▟` | Load prefix icon |
 | `@huma-mode-prefix/copy/sync/mouse` | `⌨` / `❐` / `⚏` / `↗` | Mode-badge icons |
 | `@huma-ssh-format` | `host` | SSH widget: `host` or `user@host` |
+| `@huma-kripto-coins` | _(empty)_ | Comma list of CoinGecko ids, e.g. `bitcoin,ethereum`. Empty = off |
+| `@huma-kripto-currency` | `usd` | Quote currency (CoinGecko `vs_currency`) |
+| `@huma-kripto-symbol` | `$` | Prefix shown before each price |
+| `@huma-kripto-ttl` | `300` | Min seconds between API fetches (cache TTL) |
+| `@huma-player-format` | `{{artist}} - {{title}}` | `playerctl metadata --format` template |
+| `@huma-player-max` | `40` | Truncate the now-playing text to N chars |
+| `@huma-player-playing` / `-paused` | `▶` / `⏸` | Player state icons |
 
 `#{@huma_ssh}` needs `focus-events on` for instant updates (the daemon refreshes
 it each tick regardless).
@@ -87,7 +102,12 @@ huma mode       Print the @huma_mode format string
 huma online     Print the online widget
 huma battery    Print the battery widget
 huma load       Print the load widget
+huma kripto     Print the crypto-price widget (TTL-cached CoinGecko fetch)
+huma player     Print the now-playing widget (playerctl)
 ```
+
+`huma kripto` needs `curl`; `huma player` needs `playerctl`. Both are optional —
+the widget is simply empty if the tool or data is missing.
 
 ## Design
 
