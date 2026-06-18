@@ -39,7 +39,7 @@ impl Config {
     pub fn load() -> Self {
         Config {
             interval_secs: opt_or("@huma-interval", "5").parse().unwrap_or(5),
-            online_host: opt_or("@huma-online-host", "1.1.1.1:53"),
+            online_host: opt_or("@huma-online-host", "1.1.1.1:443"),
             online_timeout_secs: opt_or("@huma-online-timeout", "1").parse().unwrap_or(1),
             online_latency: opt_bool("@huma-online-latency", true),
             online_up: opt_or("@huma-online-icon-up", "✓"),

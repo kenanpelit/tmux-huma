@@ -42,7 +42,7 @@ process).
 ## Widgets
 
 - **online**: `TcpStream::connect_timeout` to `@huma-online-host` (default
-  `1.1.1.1:53`) within `@huma-online-timeout`. Up → up-icon (+ ` <ms>ms` when
+  `1.1.1.1:443`) within `@huma-online-timeout`. Up → up-icon (+ ` <ms>ms` when
   `@huma-online-latency on`); down/refused/timeout → down-icon.
 - **battery**: first `/sys/class/power_supply/BAT*` (`capacity` + `status`):
   `⚡<pct>%` charging, `!<pct>%` ≤ `@huma-battery-low`, else `<pct>%`. No battery

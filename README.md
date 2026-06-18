@@ -62,7 +62,7 @@ set -g status-right "#{@huma_mode} #{@huma_load} #{@huma_battery} #{@huma_online
 | Option | Default | Meaning |
 |--------|---------|---------|
 | `@huma-interval` | `5` | Daemon update period (seconds) |
-| `@huma-online-host` | `1.1.1.1:53` | `host:port` probed by TCP connect |
+| `@huma-online-host` | `1.1.1.1:443` | `host:port` probed by TCP connect |
 | `@huma-online-timeout` | `1` | Connect timeout (seconds) |
 | `@huma-online-latency` | `on` | Append `<ms>ms` when up |
 | `@huma-online-icon-up` / `-down` | `✓` / `✗` | Online icons |
