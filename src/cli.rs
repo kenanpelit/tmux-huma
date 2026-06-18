@@ -21,4 +21,6 @@ pub enum Cmd {
     Battery,
     /// Print the load widget
     Load,
+    /// Refresh @huma_ssh for the active pane (pane-focus hook / daemon)
+    Ssh,
 }

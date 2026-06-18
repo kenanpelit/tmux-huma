@@ -19,6 +19,8 @@ values, so your status bar never waits on a connectivity check. Linux-only.
   `#{@huma_mode}`
 - **Battery** — percentage + charging/low marker (`/sys`). `#{@huma_battery}`
 - **Load** — `/proc/loadavg` 1-minute, optional used-RAM%. `#{@huma_load}`
+- **SSH** — the active pane's ssh host (or `user@host`), detected via `/proc`,
+  refreshed instantly on pane focus. Empty when not in ssh. `#{@huma_ssh}`
 - **Non-blocking** — a background daemon writes the values; the status bar just
   reads user options. No per-refresh blocking.
 - **Theme-agnostic** — emits value + icon only; you wrap it in your own
@@ -50,6 +52,7 @@ Place these in your `status-left` / `status-right` and style them yourself:
 | `#{@huma_mode}` | `⌨`/`❐`/`⚏`/`↗` for prefix/copy/sync/mouse |
 | `#{@huma_battery}` | `⚡50%` / `!12%` / `80%` (empty on desktops) |
 | `#{@huma_load}` | `▟ 0.42` (+ ` · 38%` with `@huma-load-mem on`) |
+| `#{@huma_ssh}` | `grid` (or `user@host`) when the pane is in ssh, else empty |
 
 Example:
 
@@ -70,6 +73,10 @@ set -g status-right "#{@huma_mode} #{@huma_load} #{@huma_battery} #{@huma_online
 | `@huma-load-mem` | `off` | Append used-RAM% to the load widget |
 | `@huma-load-icon` | `▟` | Load prefix icon |
 | `@huma-mode-prefix/copy/sync/mouse` | `⌨` / `❐` / `⚏` / `↗` | Mode-badge icons |
+| `@huma-ssh-format` | `host` | SSH widget: `host` or `user@host` |
+
+`#{@huma_ssh}` needs `focus-events on` for instant updates (the daemon refreshes
+it each tick regardless).
 
 ## CLI
 

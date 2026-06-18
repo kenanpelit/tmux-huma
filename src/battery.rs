@@ -66,6 +66,7 @@ mod tests {
             mode_copy: "C".into(),
             mode_sync: "S".into(),
             mode_mouse: "M".into(),
+            ssh_user_at_host: false,
         }
     }
 

@@ -16,6 +16,7 @@ pub struct Config {
     pub mode_copy: String,
     pub mode_sync: String,
     pub mode_mouse: String,
+    pub ssh_user_at_host: bool,
 }
 
 fn opt_or(name: &str, default: &str) -> String {
@@ -51,6 +52,7 @@ impl Config {
             mode_copy: opt_or("@huma-mode-copy", "❐"),
             mode_sync: opt_or("@huma-mode-sync", "⚏"),
             mode_mouse: opt_or("@huma-mode-mouse", "↗"),
+            ssh_user_at_host: opt_or("@huma-ssh-format", "host") == "user@host",
         }
     }
 }

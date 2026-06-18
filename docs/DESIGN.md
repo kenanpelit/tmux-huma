@@ -51,6 +51,12 @@ process).
   from `/proc/meminfo`.
 - **mode**: `#{?client_prefix,…}#{?pane_in_mode,…}#{?pane_synchronized,…}#{?mouse,…}`
   with icons from `@huma-mode-*`.
+- **ssh**: the active pane's ssh target. `huma ssh` walks `/proc` from the pane's
+  shell to find an `ssh` process and parses its argv for `[user@]host` (skipping
+  value-taking options), writing `@huma_ssh`. Unlike the daemon widgets this is
+  per-pane, so `huma.tmux` also registers a `pane-focus-in` hook to refresh it
+  the instant focus changes (the daemon tick is a fallback). No window rename.
+  `@huma-ssh-format` = `host` (default) | `user@host`.
 
 ## Daemon
 

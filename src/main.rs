@@ -5,6 +5,7 @@ mod daemon;
 mod load;
 mod mode;
 mod online;
+mod ssh;
 mod tmux;
 
 use anyhow::Result;
@@ -39,6 +40,10 @@ fn run() -> Result<()> {
         }
         Cmd::Load => {
             println!("{}", load::widget(&cfg));
+            Ok(())
+        }
+        Cmd::Ssh => {
+            ssh::update(&cfg);
             Ok(())
         }
     }

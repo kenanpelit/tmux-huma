@@ -41,6 +41,11 @@ fi
 # Mode badge: a static format string (no daemon).
 tmux set -g @huma_mode "$("$BINARY" mode)"
 
+# SSH widget (#{@huma_ssh}): refresh the instant a pane gains focus (needs
+# focus-events on), so switching to/from an ssh pane updates immediately. The
+# daemon also refreshes it each tick as a fallback.
+tmux set-hook -g pane-focus-in "run-shell -b \"$BINARY ssh\""
+
 # Immediate first values, then the background update daemon.
 "$BINARY" once >/dev/null 2>&1
 "$BINARY" daemon >/dev/null 2>&1 &
