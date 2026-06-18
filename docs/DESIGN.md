@@ -18,7 +18,10 @@ huma.tmux            TPM entrypoint (bash): resolve/install binary, set
                      @huma_mode, paint initial values, start the daemon.
 scripts/install-binary.sh   download-release-or-cargo-build
 src/
-  main.rs / cli.rs   clap dispatch: daemon|once|mode|online|battery|load|ssh|kripto|player
+  main.rs / cli.rs   clap dispatch: daemon|once|mode|online|battery|load|ssh|
+                     kripto|player|icon|sensible
+  icon.rs / icon_map.rs   command→Nerd Font glyph (map generated from YAML)
+  sensible.rs        only-if-default modern tmux baseline
   tmux.rs            tmux CLI wrapper (run + set/show user options)
   config.rs          read @huma-* via `tmux show-options -gqv`
   online.rs          TCP-connect reachability + latency
@@ -73,6 +76,17 @@ process).
   icon + cleaned, truncated metadata (a dangling `-` from empty-artist podcasts is
   stripped); empty when stopped / no player. `@huma-player-format` / `-max` /
   `-playing` / `-paused` / `-name`.
+- **icon** (not a daemon widget): `huma icon <command>` prints one Nerd Font glyph
+  for a command name, for use in `automatic-rename-format`. A built-in map
+  (`icon_map.rs`, generated from tmux-nerd-font-window-name's `defaults.yml`)
+  replaces that plugin and its `yq`/YAML dependency; `@huma-icon-shell` / `-editor`
+  override whole categories, `@huma-icon-default` is the fallback. Composable: the
+  format string supplies the name, `huma icon` only the glyph.
+- **sensible** (not a widget): `huma sensible` applies a modern tmux baseline
+  (`tmux-256color`, focus-events, bigger history, etc.) **only where the option
+  still holds tmux's compiled-in default**, so explicit user settings always win.
+  Run from `huma.tmux` on load (after the user's config is sourced), so huma is a
+  sane plugin on its own. Keybindings are left untouched.
 
 ## Daemon
 
@@ -107,5 +121,8 @@ binary inside the plugin dir, never touching `PATH` — exactly like anka.
   folding in `tmux-kripto` and `tmux-plugin-playerctl`.
 - **v0.4.0** ✅ — kripto coin glyphs (₿/Ξ/ticker via `coins/markets`); player
   auto-selects the actually-playing MPRIS player (+ `@huma-player-name`).
+- **v0.5.0** ✅ — `huma icon` (window-name glyphs, replaces
+  tmux-nerd-font-window-name) + `huma sensible` (only-if-default baseline,
+  replaces tmux-sensible).
 - Later — per-widget icon sets / nerd-font presets; more probes (VPN, multiple
   hosts) if wanted.

@@ -115,31 +115,10 @@ mod tests {
     use super::*;
 
     fn cfg(max: usize, preferred: &str) -> Config {
-        Config {
-            interval_secs: 5,
-            online_host: "x".into(),
-            online_timeout_secs: 1,
-            online_latency: true,
-            online_up: "✓".into(),
-            online_down: "✗".into(),
-            battery_low: 20,
-            load_mem: false,
-            load_icon: "▟".into(),
-            mode_prefix: "P".into(),
-            mode_copy: "C".into(),
-            mode_sync: "S".into(),
-            mode_mouse: "M".into(),
-            ssh_user_at_host: false,
-            kripto_coins: vec![],
-            kripto_currency: "usd".into(),
-            kripto_symbol: "$".into(),
-            kripto_ttl: 300,
-            player_format: "{{artist}} - {{title}}".into(),
-            player_max: max,
-            player_playing: "▶".into(),
-            player_paused: "⏸".into(),
-            player_name: preferred.into(),
-        }
+        let mut c = Config::test();
+        c.player_max = max;
+        c.player_name = preferred.into();
+        c
     }
 
     fn s(pairs: &[(&str, &str)]) -> Vec<(String, String)> {

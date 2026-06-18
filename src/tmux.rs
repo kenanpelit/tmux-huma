@@ -36,3 +36,19 @@ pub fn global_option(name: &str) -> String {
 pub fn set_global_option(name: &str, value: &str) {
     run_ok(&["set-option", "-g", name, value]);
 }
+
+pub fn server_option(name: &str) -> String {
+    run(&["show-options", "-sqv", name]).unwrap_or_default()
+}
+
+pub fn window_option(name: &str) -> String {
+    run(&["show-options", "-gwqv", name]).unwrap_or_default()
+}
+
+pub fn set_server_option(name: &str, value: &str) {
+    run_ok(&["set-option", "-s", name, value]);
+}
+
+pub fn set_window_option(name: &str, value: &str) {
+    run_ok(&["set-option", "-gw", name, value]);
+}

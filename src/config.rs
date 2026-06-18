@@ -26,6 +26,9 @@ pub struct Config {
     pub player_playing: String,
     pub player_paused: String,
     pub player_name: String,
+    pub icon_shell: String,
+    pub icon_editor: String,
+    pub icon_default: String,
 }
 
 fn opt_or(name: &str, default: &str) -> String {
@@ -75,6 +78,41 @@ impl Config {
             player_playing: opt_or("@huma-player-playing", "▶"),
             player_paused: opt_or("@huma-player-paused", "⏸"),
             player_name: opt_or("@huma-player-name", ""),
+            icon_shell: opt_or("@huma-icon-shell", ""),
+            icon_editor: opt_or("@huma-icon-editor", ""),
+            icon_default: opt_or("@huma-icon-default", "?"),
+        }
+    }
+
+    #[cfg(test)]
+    pub fn test() -> Self {
+        Config {
+            interval_secs: 5,
+            online_host: "x".into(),
+            online_timeout_secs: 1,
+            online_latency: true,
+            online_up: "✓".into(),
+            online_down: "✗".into(),
+            battery_low: 20,
+            load_mem: false,
+            load_icon: "▟".into(),
+            mode_prefix: "P".into(),
+            mode_copy: "C".into(),
+            mode_sync: "S".into(),
+            mode_mouse: "M".into(),
+            ssh_user_at_host: false,
+            kripto_coins: vec![],
+            kripto_currency: "usd".into(),
+            kripto_symbol: "$".into(),
+            kripto_ttl: 300,
+            player_format: "{{artist}} - {{title}}".into(),
+            player_max: 40,
+            player_playing: "▶".into(),
+            player_paused: "⏸".into(),
+            player_name: String::new(),
+            icon_shell: String::new(),
+            icon_editor: String::new(),
+            icon_default: "?".into(),
         }
     }
 }

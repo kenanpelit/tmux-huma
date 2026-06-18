@@ -2,11 +2,14 @@ mod battery;
 mod cli;
 mod config;
 mod daemon;
+mod icon;
+mod icon_map;
 mod kripto;
 mod load;
 mod mode;
 mod online;
 mod player;
+mod sensible;
 mod ssh;
 mod tmux;
 
@@ -54,6 +57,14 @@ fn run() -> Result<()> {
         }
         Cmd::Player => {
             println!("{}", player::value(&cfg));
+            Ok(())
+        }
+        Cmd::Icon { command } => {
+            println!("{}", icon::icon(&command, &cfg));
+            Ok(())
+        }
+        Cmd::Sensible => {
+            sensible::apply();
             Ok(())
         }
     }

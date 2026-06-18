@@ -27,4 +27,11 @@ pub enum Cmd {
     Kripto,
     /// Print the now-playing widget (playerctl)
     Player,
+    /// Print the Nerd Font icon for a command (window-name helper)
+    Icon {
+        /// Command name, e.g. #{pane_current_command}
+        command: String,
+    },
+    /// Apply a modern tmux baseline (only options still at their default)
+    Sensible,
 }

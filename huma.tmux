@@ -38,6 +38,10 @@ if [ -z "$BINARY" ]; then
     exit 0
 fi
 
+# Sane tmux baseline (replaces tmux-sensible). Only-if-default, so anything you
+# set in your own config — sourced before this — always wins.
+"$BINARY" sensible >/dev/null 2>&1
+
 # Mode badge: a static format string (no daemon).
 tmux set -g @huma_mode "$("$BINARY" mode)"
 

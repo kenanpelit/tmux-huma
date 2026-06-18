@@ -51,31 +51,9 @@ mod tests {
     use super::*;
 
     fn cfg(mem: bool) -> Config {
-        Config {
-            interval_secs: 5,
-            online_host: "x".into(),
-            online_timeout_secs: 1,
-            online_latency: true,
-            online_up: "✓".into(),
-            online_down: "✗".into(),
-            battery_low: 20,
-            load_mem: mem,
-            load_icon: "▟".into(),
-            mode_prefix: "P".into(),
-            mode_copy: "C".into(),
-            mode_sync: "S".into(),
-            mode_mouse: "M".into(),
-            ssh_user_at_host: false,
-            kripto_coins: vec![],
-            kripto_currency: "usd".into(),
-            kripto_symbol: "$".into(),
-            kripto_ttl: 300,
-            player_format: "{{artist}} - {{title}}".into(),
-            player_max: 40,
-            player_playing: "▶".into(),
-            player_paused: "⏸".into(),
-            player_name: String::new(),
-        }
+        let mut c = Config::test();
+        c.load_mem = mem;
+        c
     }
 
     #[test]

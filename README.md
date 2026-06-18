@@ -1,15 +1,17 @@
 # tmux-huma 🪶
 
-> Status-bar awareness widgets for tmux — online, mode, battery, load.
+> Status-bar awareness widgets for tmux — online, mode, battery, load, ssh,
+> crypto, now-playing — plus window-name icons and sensible defaults.
 
 **Huma** (the mythical bird that watches from above) is a single modern plugin
 that provides the status-bar widgets people reach for — connectivity, the
 current mode, battery, and system load — as one zero-runtime-dependency Rust
 binary, mirroring [`tmux-anka`](https://github.com/kenanpelit/tmux-anka).
 
-It replaces `tmux-online-status` and `tmux-prefix-highlight` and adds battery +
-load, with a **non-blocking** design: a tiny background daemon updates the
-values, so your status bar never waits on a connectivity check. Linux-only.
+It folds in `tmux-online-status`, `tmux-prefix-highlight`, `tmux-ssh-status`,
+`tmux-kripto`, `tmux-plugin-playerctl`, `tmux-nerd-font-window-name` and
+`tmux-sensible`, with a **non-blocking** design: a tiny background daemon updates
+the values, so your status bar never waits on a connectivity check. Linux-only.
 
 ## Features
 
@@ -27,6 +29,13 @@ values, so your status bar never waits on a connectivity check. Linux-only.
 - **Player** — now-playing from `playerctl`; auto-picks the player that is
   actually playing (handy with a browser + Spotify open), play/pause marker,
   truncation. Empty when nothing is playing. `#{@huma_player}`
+- **Window icons** — a Nerd Font glyph per command for `automatic-rename-format`
+  (nvim/git/docker/…), native and dependency-free. Replaces
+  `tmux-nerd-font-window-name` (no `yq`/YAML). `huma icon <command>`
+- **Sensible defaults** — a modern tmux baseline (`tmux-256color`, focus-events,
+  bigger history, …) applied **only where you haven't set the option yourself**,
+  so huma is a sane plugin even outside one person's config. Replaces
+  `tmux-sensible`.
 - **Non-blocking** — a background daemon writes the values; the status bar just
   reads user options. No per-refresh blocking.
 - **Theme-agnostic** — emits value + icon only; you wrap it in your own
@@ -70,6 +79,14 @@ Example:
 set -g status-right "#{@huma_mode} #{@huma_load} #{@huma_battery} #{@huma_online} %H:%M"
 ```
 
+**Window-name icons** — compose the name yourself; `huma icon` prints just the
+glyph for the current command:
+
+```tmux
+set -g automatic-rename on
+set -g automatic-rename-format "#(~/.config/tmux/plugins/tmux-huma/bin/huma icon '#{pane_current_command}') #{b:pane_current_path}"
+```
+
 ## Configuration
 
 | Option | Default | Meaning |
@@ -92,6 +109,9 @@ set -g status-right "#{@huma_mode} #{@huma_load} #{@huma_battery} #{@huma_online
 | `@huma-player-max` | `40` | Truncate the now-playing text to N chars |
 | `@huma-player-playing` / `-paused` | `▶` / `⏸` | Player state icons |
 | `@huma-player-name` | _(auto)_ | Force an MPRIS player by name (prefix, e.g. `spotify`); empty = first playing |
+| `@huma-icon-shell` | _(auto)_ | Override the glyph for all shells (empty = per-shell built-in) |
+| `@huma-icon-editor` | _(auto)_ | Override the glyph for all editors (empty = per-editor built-in) |
+| `@huma-icon-default` | `?` | Fallback glyph for unknown commands |
 
 `#{@huma_ssh}` needs `focus-events on` for instant updates (the daemon refreshes
 it each tick regardless).
@@ -107,6 +127,8 @@ huma battery    Print the battery widget
 huma load       Print the load widget
 huma kripto     Print the crypto-price widget (TTL-cached CoinGecko fetch)
 huma player     Print the now-playing widget (playerctl)
+huma icon CMD   Print the Nerd Font icon for a command (window-name helper)
+huma sensible   Apply a modern tmux baseline (only options still at default)
 ```
 
 `huma kripto` needs `curl`; `huma player` needs `playerctl`. Both are optional —
