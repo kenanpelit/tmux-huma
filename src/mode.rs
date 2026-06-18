@@ -40,6 +40,7 @@ mod tests {
             player_max: 40,
             player_playing: "▶".into(),
             player_paused: "⏸".into(),
+            player_name: String::new(),
         }
     }
 

@@ -21,9 +21,11 @@ values, so your status bar never waits on a connectivity check. Linux-only.
 - **Load** — `/proc/loadavg` 1-minute, optional used-RAM%. `#{@huma_load}`
 - **SSH** — the active pane's ssh host (or `user@host`), detected via `/proc`,
   refreshed instantly on pane focus. Empty when not in ssh. `#{@huma_ssh}`
-- **Kripto** — live crypto prices (CoinGecko), TTL-cached so the API is hit at
-  most once per `@huma-kripto-ttl`. Off until you set coins. `#{@huma_kripto}`
-- **Player** — now-playing from `playerctl`, with a play/pause marker and
+- **Kripto** — live crypto prices (CoinGecko), each coin shown with a currency
+  glyph (₿, Ξ, …) or its ticker. TTL-cached so the API is hit at most once per
+  `@huma-kripto-ttl`. Off until you set coins. `#{@huma_kripto}`
+- **Player** — now-playing from `playerctl`; auto-picks the player that is
+  actually playing (handy with a browser + Spotify open), play/pause marker,
   truncation. Empty when nothing is playing. `#{@huma_player}`
 - **Non-blocking** — a background daemon writes the values; the status bar just
   reads user options. No per-refresh blocking.
@@ -59,7 +61,7 @@ Place these in your `status-left` / `status-right` and style them yourself:
 | `#{@huma_battery}` | `⚡50%` / `!12%` / `80%` (empty on desktops) |
 | `#{@huma_load}` | `▟ 0.42` (+ ` · 38%` with `@huma-load-mem on`) |
 | `#{@huma_ssh}` | `grid` (or `user@host`) when the pane is in ssh, else empty |
-| `#{@huma_kripto}` | `$62,487` (one or more coins; empty until configured) |
+| `#{@huma_kripto}` | `₿ $62,500  Ξ $1,680` (one or more coins; empty until configured) |
 | `#{@huma_player}` | `▶ Artist - Title` / `⏸ …` (empty when not playing) |
 
 Example:
@@ -89,6 +91,7 @@ set -g status-right "#{@huma_mode} #{@huma_load} #{@huma_battery} #{@huma_online
 | `@huma-player-format` | `{{artist}} - {{title}}` | `playerctl metadata --format` template |
 | `@huma-player-max` | `40` | Truncate the now-playing text to N chars |
 | `@huma-player-playing` / `-paused` | `▶` / `⏸` | Player state icons |
+| `@huma-player-name` | _(auto)_ | Force an MPRIS player by name (prefix, e.g. `spotify`); empty = first playing |
 
 `#{@huma_ssh}` needs `focus-events on` for instant updates (the daemon refreshes
 it each tick regardless).

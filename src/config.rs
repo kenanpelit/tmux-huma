@@ -25,6 +25,7 @@ pub struct Config {
     pub player_max: usize,
     pub player_playing: String,
     pub player_paused: String,
+    pub player_name: String,
 }
 
 fn opt_or(name: &str, default: &str) -> String {
@@ -73,6 +74,7 @@ impl Config {
             player_max: opt_or("@huma-player-max", "40").parse().unwrap_or(40),
             player_playing: opt_or("@huma-player-playing", "▶"),
             player_paused: opt_or("@huma-player-paused", "⏸"),
+            player_name: opt_or("@huma-player-name", ""),
         }
     }
 }

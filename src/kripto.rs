@@ -1,9 +1,13 @@
 //! Cryptocurrency prices via the CoinGecko public API.
 //!
-//! Fetched by the daemon but rate-limited by `@huma-kripto-ttl`: the price is
+//! Fetched by the daemon but rate-limited by `@huma-kripto-ttl`: the value is
 //! cached in `$XDG_RUNTIME_DIR/huma-kripto.cache` and only re-fetched once the
 //! TTL elapses, so the daemon tick (seconds) never hammers the API. A failed
 //! fetch falls back to the last good value instead of blanking the widget.
+//!
+//! Uses the `coins/markets` endpoint so each coin's ticker `symbol` comes back
+//! with the price — rendered as a currency glyph (₿, Ξ, …) or the upper-case
+//! ticker for coins without one.
 
 use std::path::PathBuf;
 use std::process::Command;
@@ -38,15 +42,41 @@ pub fn group_thousands(n: u64) -> String {
     out
 }
 
-/// Pull `coin`'s `currency` price out of a CoinGecko `simple/price` response,
-/// e.g. `{"bitcoin":{"usd":43210.5}}` → `Some(43210.5)`. No JSON dependency:
-/// we locate the coin key, then its currency key, then read the number.
-pub fn parse_price(json: &str, coin: &str, currency: &str) -> Option<f64> {
-    let coin_key = format!("\"{coin}\"");
-    let after_coin = &json[json.find(&coin_key)? + coin_key.len()..];
-    let cur_key = format!("\"{currency}\"");
-    let after_cur = &after_coin[after_coin.find(&cur_key)? + cur_key.len()..];
-    let num: String = after_cur
+/// Status-bar price: large coins as whole numbers with thousands separators,
+/// mid-range with 2 decimals, sub-$1 coins with 4.
+pub fn fmt_price(p: f64) -> String {
+    if p >= 1000.0 {
+        group_thousands(p.round() as u64)
+    } else if p >= 1.0 {
+        format!("{p:.2}")
+    } else {
+        format!("{p:.4}")
+    }
+}
+
+/// A currency-style glyph for well-known tickers, else the upper-case ticker.
+pub fn marker(symbol: &str) -> String {
+    match symbol.to_lowercase().as_str() {
+        "btc" => "₿",
+        "eth" => "Ξ",
+        "ltc" => "Ł",
+        "doge" => "Ð",
+        "xmr" => "ɱ",
+        "dash" => "Đ",
+        "usdt" | "usdc" => "₮",
+        s => return s.to_uppercase(),
+    }
+    .to_string()
+}
+
+fn field_str(obj: &str, marker: &str) -> Option<String> {
+    let after = &obj[obj.find(marker)? + marker.len()..];
+    Some(after[..after.find('"')?].to_string())
+}
+
+fn field_num(obj: &str, marker: &str) -> Option<f64> {
+    let after = &obj[obj.find(marker)? + marker.len()..];
+    let num: String = after
         .trim_start_matches([':', ' '])
         .chars()
         .take_while(|c| c.is_ascii_digit() || *c == '.')
@@ -54,23 +84,31 @@ pub fn parse_price(json: &str, coin: &str, currency: &str) -> Option<f64> {
     num.parse().ok()
 }
 
-fn fmt_price(price: f64, symbol: &str, coin: &str, multi: bool) -> String {
-    let n = group_thousands(price.round() as u64);
-    if multi {
-        format!("{coin} {symbol}{n}")
-    } else {
-        format!("{symbol}{n}")
-    }
+/// Pull a coin's `(symbol, price)` out of a CoinGecko `coins/markets` array. No
+/// JSON crate: locate the coin's object by `id`, bound it to the next `id`, then
+/// read its `symbol` + `current_price`.
+pub fn parse_market(json: &str, coin: &str) -> Option<(String, f64)> {
+    let key = format!("\"id\":\"{coin}\"");
+    let start = json.find(&key)?;
+    let rest = &json[start..];
+    let end = rest[key.len()..]
+        .find("\"id\":\"")
+        .map(|i| i + key.len())
+        .unwrap_or(rest.len());
+    let obj = &rest[..end];
+    let symbol = field_str(obj, "\"symbol\":\"")?;
+    let price = field_num(obj, "\"current_price\":")?;
+    Some((symbol, price))
 }
 
-/// Format the whole widget from a CoinGecko response for the configured coins.
+/// Build the widget from a CoinGecko `coins/markets` response.
 pub fn format_widget(json: &str, cfg: &Config) -> String {
-    let multi = cfg.kripto_coins.len() > 1;
     cfg.kripto_coins
         .iter()
         .filter_map(|coin| {
-            parse_price(json, coin, &cfg.kripto_currency)
-                .map(|p| fmt_price(p, &cfg.kripto_symbol, coin, multi))
+            parse_market(json, coin).map(|(sym, price)| {
+                format!("{} {}{}", marker(&sym), cfg.kripto_symbol, fmt_price(price))
+            })
         })
         .collect::<Vec<_>>()
         .join("  ")
@@ -79,7 +117,7 @@ pub fn format_widget(json: &str, cfg: &Config) -> String {
 fn fetch(cfg: &Config) -> Option<String> {
     let ids = cfg.kripto_coins.join(",");
     let url = format!(
-        "https://api.coingecko.com/api/v3/simple/price?ids={ids}&vs_currencies={}",
+        "https://api.coingecko.com/api/v3/coins/markets?vs_currency={}&ids={ids}",
         cfg.kripto_currency
     );
     let out = Command::new("curl")
@@ -158,6 +196,7 @@ mod tests {
             player_max: 40,
             player_playing: "▶".into(),
             player_paused: "⏸".into(),
+            player_name: String::new(),
         }
     }
 
@@ -169,31 +208,40 @@ mod tests {
     }
 
     #[test]
-    fn price_simple() {
-        let j = r#"{"bitcoin":{"usd":43210.5}}"#;
-        assert_eq!(parse_price(j, "bitcoin", "usd"), Some(43210.5));
+    fn price_formatting() {
+        assert_eq!(fmt_price(62624.0), "62,624");
+        assert_eq!(fmt_price(1681.66), "1,682");
+        assert_eq!(fmt_price(12.5), "12.50");
+        assert_eq!(fmt_price(0.1234), "0.1234");
     }
 
     #[test]
-    fn price_multi_and_missing() {
-        let j = r#"{"bitcoin":{"usd":43210},"ethereum":{"usd":2310}}"#;
-        assert_eq!(parse_price(j, "ethereum", "usd"), Some(2310.0));
-        assert_eq!(parse_price(j, "dogecoin", "usd"), None);
-        assert_eq!(parse_price(j, "bitcoin", "eur"), None);
+    fn markers() {
+        assert_eq!(marker("btc"), "₿");
+        assert_eq!(marker("ETH"), "Ξ");
+        assert_eq!(marker("sol"), "SOL");
+    }
+
+    #[test]
+    fn market_parse() {
+        let j = r#"[{"id":"bitcoin","symbol":"btc","current_price":62624},{"id":"ethereum","symbol":"eth","current_price":1681.66}]"#;
+        assert_eq!(parse_market(j, "bitcoin"), Some(("btc".into(), 62624.0)));
+        assert_eq!(parse_market(j, "ethereum"), Some(("eth".into(), 1681.66)));
+        assert_eq!(parse_market(j, "dogecoin"), None);
     }
 
     #[test]
     fn widget_single() {
-        let j = r#"{"bitcoin":{"usd":43210}}"#;
-        assert_eq!(format_widget(j, &cfg(&["bitcoin"])), "$43,210");
+        let j = r#"[{"id":"bitcoin","symbol":"btc","current_price":62624}]"#;
+        assert_eq!(format_widget(j, &cfg(&["bitcoin"])), "₿ $62,624");
     }
 
     #[test]
-    fn widget_multi_labels_each() {
-        let j = r#"{"bitcoin":{"usd":43210},"ethereum":{"usd":2310}}"#;
+    fn widget_multi() {
+        let j = r#"[{"id":"bitcoin","symbol":"btc","current_price":62624},{"id":"ethereum","symbol":"eth","current_price":1681.66}]"#;
         assert_eq!(
             format_widget(j, &cfg(&["bitcoin", "ethereum"])),
-            "bitcoin $43,210  ethereum $2,310"
+            "₿ $62,624  Ξ $1,682"
         );
     }
 
