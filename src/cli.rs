@@ -34,4 +34,8 @@ pub enum Cmd {
     },
     /// Apply a modern tmux baseline (only options still at their default)
     Sensible,
+    /// Suspend tmux: disable the prefix so keys pass through (port of tmux-suspend)
+    Suspend,
+    /// Resume from the suspended pass-through state
+    Resume,
 }

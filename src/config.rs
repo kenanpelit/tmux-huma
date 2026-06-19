@@ -29,6 +29,9 @@ pub struct Config {
     pub icon_shell: String,
     pub icon_editor: String,
     pub icon_default: String,
+    pub mode_suspend: String,
+    pub autoreload: bool,
+    pub autoreload_configs: Vec<String>,
 }
 
 fn opt_or(name: &str, default: &str) -> String {
@@ -81,6 +84,13 @@ impl Config {
             icon_shell: opt_or("@huma-icon-shell", ""),
             icon_editor: opt_or("@huma-icon-editor", ""),
             icon_default: opt_or("@huma-icon-default", "?"),
+            mode_suspend: opt_or("@huma-mode-suspend", "󰒲"),
+            autoreload: opt_bool("@huma-autoreload", false),
+            autoreload_configs: opt_or("@huma-autoreload-configs", "")
+                .split(',')
+                .map(|s| s.trim().to_string())
+                .filter(|s| !s.is_empty())
+                .collect(),
         }
     }
 
@@ -113,6 +123,9 @@ impl Config {
             icon_shell: String::new(),
             icon_editor: String::new(),
             icon_default: "?".into(),
+            mode_suspend: "Z".into(),
+            autoreload: false,
+            autoreload_configs: vec![],
         }
     }
 }

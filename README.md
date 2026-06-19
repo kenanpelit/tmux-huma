@@ -9,8 +9,9 @@ current mode, battery, and system load — as one zero-runtime-dependency Rust
 binary, mirroring [`tmux-anka`](https://github.com/kenanpelit/tmux-anka).
 
 It folds in `tmux-online-status`, `tmux-prefix-highlight`, `tmux-ssh-status`,
-`tmux-kripto`, `tmux-plugin-playerctl`, `tmux-nerd-font-window-name` and
-`tmux-sensible`, with a **non-blocking** design: a tiny background daemon updates
+`tmux-kripto`, `tmux-plugin-playerctl`, `tmux-nerd-font-window-name`,
+`tmux-sensible`, `tmux-suspend` and `tmux-autoreload`, with a **non-blocking**
+design: a tiny background daemon updates
 the values, so your status bar never waits on a connectivity check. Linux-only.
 
 ## Features
@@ -36,6 +37,13 @@ the values, so your status bar never waits on a connectivity check. Linux-only.
   bigger history, …) applied **only where you haven't set the option yourself**,
   so huma is a sane plugin even outside one person's config. Replaces
   `tmux-sensible`.
+- **Suspend** — `F12` disables the prefix and switches to a `suspended` key
+  table so keys pass through to a nested session (ssh + tmux/byobu); a badge
+  shows in the mode widget while suspended, and `F12` resumes. Replaces
+  `tmux-suspend`. `@huma-suspend-key`
+- **Autoreload** — the daemon watches your tmux config files and re-sources them
+  on save (mtime poll, no `entr`). Off until `@huma-autoreload on`. Replaces
+  `tmux-autoreload`.
 - **Non-blocking** — a background daemon writes the values; the status bar just
   reads user options. No per-refresh blocking.
 - **Theme-agnostic** — emits value + icon only; you wrap it in your own
@@ -112,6 +120,10 @@ set -g automatic-rename-format "#(~/.config/tmux/plugins/tmux-huma/bin/huma icon
 | `@huma-icon-shell` | _(auto)_ | Override the glyph for all shells (empty = per-shell built-in) |
 | `@huma-icon-editor` | _(auto)_ | Override the glyph for all editors (empty = per-editor built-in) |
 | `@huma-icon-default` | `?` | Fallback glyph for unknown commands |
+| `@huma-mode-suspend` | `󰒲` | Badge shown in the mode widget while suspended |
+| `@huma-suspend-key` | `F12` | Key (root + suspended tables) toggling suspend; `none` disables |
+| `@huma-autoreload` | `off` | Watch config files and re-source on change |
+| `@huma-autoreload-configs` | _(empty)_ | Extra files to watch (comma list), beyond `#{config_files}` |
 
 `#{@huma_ssh}` needs `focus-events on` for instant updates (the daemon refreshes
 it each tick regardless).
@@ -129,6 +141,8 @@ huma kripto     Print the crypto-price widget (TTL-cached CoinGecko fetch)
 huma player     Print the now-playing widget (playerctl)
 huma icon CMD   Print the Nerd Font icon for a command (window-name helper)
 huma sensible   Apply a modern tmux baseline (only options still at default)
+huma suspend    Disable the prefix; pass keys through (port of tmux-suspend)
+huma resume     Resume from the suspended pass-through state
 ```
 
 `huma kripto` needs `curl`; `huma player` needs `playerctl`. Both are optional —

@@ -1,3 +1,4 @@
+mod autoreload;
 mod battery;
 mod cli;
 mod config;
@@ -11,6 +12,7 @@ mod online;
 mod player;
 mod sensible;
 mod ssh;
+mod suspend;
 mod tmux;
 
 use anyhow::Result;
@@ -67,5 +69,7 @@ fn run() -> Result<()> {
             sensible::apply();
             Ok(())
         }
+        Cmd::Suspend => suspend::suspend(),
+        Cmd::Resume => suspend::resume(),
     }
 }

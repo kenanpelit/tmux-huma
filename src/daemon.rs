@@ -29,8 +29,10 @@ pub fn run(cfg: &Config) -> Result<()> {
     }
     write_pid(&lock);
     let interval = interval(cfg);
+    let mut watcher = crate::autoreload::Watcher::new();
     loop {
         let _ = once(cfg);
+        watcher.tick(cfg);
         thread::sleep(interval);
         if !tmux::server_running() {
             break;

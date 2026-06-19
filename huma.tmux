@@ -45,6 +45,16 @@ fi
 # Mode badge: a static format string (no daemon).
 tmux set -g @huma_mode "$("$BINARY" mode)"
 
+# Suspend toggle (replaces tmux-suspend): @huma-suspend-key (default F12) disables
+# the prefix and switches to the `suspended` key-table so keys pass through to a
+# nested session; the same key resumes. Set the option to 'none' to skip binding.
+SUSPEND_KEY="$(tmux show-option -gqv @huma-suspend-key)"
+SUSPEND_KEY="${SUSPEND_KEY:-F12}"
+if [ "$SUSPEND_KEY" != "none" ] && [ "$SUSPEND_KEY" != "off" ]; then
+    tmux bind -T root "$SUSPEND_KEY" run-shell "$BINARY suspend"
+    tmux bind -T suspended "$SUSPEND_KEY" run-shell "$BINARY resume"
+fi
+
 # SSH widget (#{@huma_ssh}): refresh the instant a pane gains focus (needs
 # focus-events on), so switching to/from an ssh pane updates immediately. The
 # daemon also refreshes it each tick as a fallback.
